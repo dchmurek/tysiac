@@ -1,42 +1,47 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gra drużynowa</title>
+    <title>Team Game</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="container">
-    <h1>Dodaj Graczy</h1>
-    <input type="text" id="playerName" placeholder="Nazwa gracza">
-    <button id="addPlayer">Dodaj</button>
+    <h1>Add Players</h1>
+    <input type="text" id="playerName" placeholder="Player Name">
+    <button id="addPlayer">Add</button>
 
-    <h2>Gracze:</h2>
+    <h2>Players:</h2>
     <ul id="playerList"></ul>
 
-    <button id="drawTeams" disabled>Losuj Drużyny</button>
+    <button id="drawTeams" disabled>Draw Teams</button>
+    <button id="createCustomTeams">Create Custom Teams</button> <!-- Moved here -->
+
+    <div id="dealerNameDisplay" class="dealer-name hidden"></div>
 
     <div id="teams" class="hidden">
-        <h2>Wyniki</h2>
+        <h2>Results</h2>
         <div id="team1">
             <h3 id="team1Name"></h3>
-            <span id="team1Points">Punkty: 0</span>
-            <input type="number" id="team1ScoreInput" placeholder="Wpisz punkty">
-            <button id="addTeam1Points">Dodaj punkty</button>
+            <span id="team1Points">Points: 0</span>
+            <input type="number" id="team1ScoreInput" placeholder="Enter points">
+            <button id="addTeam1Points">Add Points</button>
         </div>
         <div id="team2">
             <h3 id="team2Name"></h3>
-            <span id="team2Points">Punkty: 0</span>
-            <input type="number" id="team2ScoreInput" placeholder="Wpisz punkty">
-            <button id="addTeam2Points">Dodaj punkty</button>
+            <span id="team2Points">Points: 0</span>
+            <input type="number" id="team2ScoreInput" placeholder="Enter points">
+            <button id="addTeam2Points">Add Points</button>
         </div>
     </div>
 
     <div id="winner" class="hidden">
         <h2 id="winnerMessage"></h2>
-        <button id="resetGame">Powrót do startu</button>
+        <button id="resetGame">Back to Start</button>
     </div>
+
+    <button id="resetGameTotal" class="red-button">Reset Game</button>
 </div>
 
 <script src="script.js"></script>

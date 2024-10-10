@@ -1,6 +1,7 @@
 const players = JSON.parse(localStorage.getItem('players')) || [];
 const playerList = document.getElementById('playerList');
 const drawTeamsButton = document.getElementById('drawTeams');
+const createCustomTeamsButton = document.getElementById('createCustomTeams'); // New button reference
 const team1Name = document.getElementById('team1Name');
 const team2Name = document.getElementById('team2Name');
 const team1Points = document.getElementById('team1Points');
@@ -8,9 +9,12 @@ const team2Points = document.getElementById('team2Points');
 const winnerMessage = document.getElementById('winnerMessage');
 const winnerDiv = document.getElementById('winner');
 const teamsDiv = document.getElementById('teams');
-let team1Score = localStorage.getItem('team1Score') || 0;
-let team2Score = localStorage.getItem('team2Score') || 0;
+const dealerNameDisplay = document.getElementById('dealerNameDisplay');
+
+let team1Score = parseInt(localStorage.getItem('team1Score')) || 0;
+let team2Score = parseInt(localStorage.getItem('team2Score')) || 0;
 let gameStarted = false;
+let dealerName = '';
 
 document.getElementById('addPlayer').addEventListener('click', () => {
     const playerName = document.getElementById('playerName').value;
@@ -19,29 +23,56 @@ document.getElementById('addPlayer').addEventListener('click', () => {
         updatePlayerList();
         document.getElementById('playerName').value = '';
         localStorage.setItem('players', JSON.stringify(players));
-        drawTeamsButton.disabled = players.length < 5;
+        drawTeamsButton.disabled = players.length < 4; // Minimum 4 players for teams
     }
 });
 
 drawTeamsButton.addEventListener('click', () => {
-    shufflePlayers();
-    setupTeams();
-    gameStarted = true;
-    localStorage.setItem('gameStarted', gameStarted);
+    if (players.length >= 4) {
+        shufflePlayers();
+        setupTeams();
+        gameStarted = true;
+        localStorage.setItem('gameStarted', gameStarted);
+    }
+});
+
+// Updated event listener for custom teams
+createCustomTeamsButton.addEventListener('click', () => {
+    const team1Players = prompt('Enter names for Team 1, separated by a comma:').split(',');
+    const team2Players = prompt('Enter names for Team 2, separated by a comma:').split(',');
+
+    if (team1Players.length >= 2 && team2Players.length >= 2) {
+        dealerName = prompt('Enter the dealer name:');
+        dealerNameDisplay.innerText = `Dealer: ${dealerName}`;
+        dealerNameDisplay.classList.remove('hidden'); // Show dealer name
+
+        team1Name.innerText = `${team1Players.join(' and ')} - Team 1`;
+        team2Name.innerText = `${team2Players.join(' and ')} - Team 2`;
+        team1Points.innerText = `Points: ${team1Score}`;
+        team2Points.innerText = `Points: ${team2Score}`;
+        teamsDiv.classList.remove('hidden');
+        gameStarted = true;
+        localStorage.setItem('gameStarted', gameStarted);
+    } else {
+        alert('Each team must have at least 2 players.');
+    }
 });
 
 function shufflePlayers() {
-    for (let i = players.length - 1; i > 0; i--) {
+    const shuffledPlayers = [...players];
+    for (let i = shuffledPlayers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [players[i], players[j]] = [players[j], players[i]];
+        [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
     }
-}
 
-function setupTeams() {
-    team1Name.innerText = `${players[0].charAt(0)}${players[1].charAt(0)} - Drużyna 1`;
-    team2Name.innerText = `${players[3].charAt(0)}${players[4].charAt(0)} - Drużyna 2`;
-    team1Points.innerText = `Punkty: ${team1Score}`;
-    team2Points.innerText = `Punkty: ${team2Score}`;
+    // Setup teams based on shuffled players
+    team1Name.innerText = `${shuffledPlayers[0]} and ${shuffledPlayers[1]} - Team 1`;
+    team2Name.innerText = `${shuffledPlayers[2]} and ${shuffledPlayers[3]} - Team 2`;
+    dealerName = shuffledPlayers[4] || '';
+    dealerNameDisplay.innerText = `Dealer: ${dealerName}`;
+    dealerNameDisplay.classList.remove('hidden'); // Show dealer name
+    team1Points.innerText = `Points: ${team1Score}`;
+    team2Points.innerText = `Points: ${team2Score}`;
     teamsDiv.classList.remove('hidden');
 }
 
@@ -59,31 +90,34 @@ function addPoints(team) {
     if (!isNaN(points)) {
         if (team === 1) {
             team1Score += points;
-            team1Points.innerText = `Punkty: ${team1Score}`;
+            team1Points.innerText = `Points: ${team1Score}`;
             localStorage.setItem('team1Score', team1Score);
-            if (team1Score > 1000) declareWinner(1);
+            if (team1Score >= 1000) declareWinner(1);
         } else {
             team2Score += points;
-            team2Points.innerText = `Punkty: ${team2Score}`;
+            team2Points.innerText = `Points: ${team2Score}`;
             localStorage.setItem('team2Score', team2Score);
-            if (team2Score > 1000) declareWinner(2);
+            if (team2Score >= 1000) declareWinner(2);
         }
         input.value = '';
     }
 }
 
 function declareWinner(team) {
-    winnerMessage.innerText = `Drużyna ${team === 1 ? '1' : '2'} wygrała!`;
+    winnerMessage.innerText = `Team ${team === 1 ? '1' : '2'} has won!`;
     winnerDiv.classList.remove('hidden');
     teamsDiv.classList.add('hidden');
-    localStorage.removeItem('players');
-    localStorage.removeItem('team1Score');
-    localStorage.removeItem('team2Score');
-    localStorage.removeItem('gameStarted');
 }
 
 document.getElementById('resetGame').addEventListener('click', () => {
-    location.reload();
+    localStorage.clear(); // Clear local storage
+    location.reload(); // Reload the page
+});
+
+// Add reset game functionality
+document.getElementById('resetGameTotal').addEventListener('click', () => {
+    localStorage.clear(); // Clear local storage
+    location.reload(); // Reload the page
 });
 
 function updatePlayerList() {
@@ -95,7 +129,7 @@ function updatePlayerList() {
     });
 }
 
-// Przywracanie stanu gry po odświeżeniu
+// Resetting game state after refresh
 if (localStorage.getItem('gameStarted') === 'true') {
     setupTeams();
 }
